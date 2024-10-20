@@ -43,7 +43,6 @@ class BacktestView(APIView):
 
             logger.debug(f"Starting backtest for {symbol} from {start_date} to {end_date}")
 
-           
             existing_data = StockData.objects.filter(
                 symbol=symbol,
                 date__range=(start_date, end_date)
@@ -64,20 +63,14 @@ class BacktestView(APIView):
                 'long_window': long_window
             })
 
-            # Generate predictions
-            try:
-                predict_stock_prices(symbol, start_date, end_date)
-                logger.debug(f"Predictions generated for {symbol}")
-            except Exception as e:
-                logger.error(f"Error generating predictions: {str(e)}")
-              
-
-            return Response(result, status=status.HTTP_200_OK)
+            return Response(result)
+        except KeyError as ke:
+            return Response({'error': f'Missing required parameter: {str(ke)}'}, status=status.HTTP_400_BAD_REQUEST)
         except ValueError as ve:
             return Response({'error': str(ve)}, status=status.HTTP_400_BAD_REQUEST)
         except Exception as e:
             logger.error(f"Error in BacktestView: {str(e)}")
-            return Response({'error': str(e)}, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
+            return Response({'error': 'An unexpected error occurred'}, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
 
 class PredictionView(APIView):
     def get(self, request):

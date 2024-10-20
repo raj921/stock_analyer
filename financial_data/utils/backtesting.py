@@ -56,7 +56,7 @@ def backtest_strategy(params):
 
 
     final_value = balance + position * df['close_price'].iloc[-1]
-    total_return = (final_value - initial_investment) / initial_investment * 100
+    total_return = ((final_value - initial_investment) / initial_investment * 100) if initial_investment != 0 else 0
     max_drawdown = calculate_max_drawdown(df)
     num_trades = len(trades)
 

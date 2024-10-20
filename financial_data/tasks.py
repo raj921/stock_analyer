@@ -15,7 +15,7 @@ def update_stock_data(self, symbol):
         logger.info(f"Successfully updated stock data for {symbol}")
     except Exception as e:
         logger.error(f"Error updating stock data for {symbol}: {e}")
-        self.retry(exc=e)
+        raise self.retry(exc=e)
 
 @shared_task(bind=True, max_retries=3, default_retry_delay=60)
 def update_company_overview(self, symbol):
@@ -32,9 +32,9 @@ def update_company_overview(self, symbol):
                 'sector': overview.get('Sector'),
                 'industry': overview.get('Industry'),
                 'market_capitalization': int(overview.get('MarketCapitalization', 0)),
-                'pe_ratio': float(overview.get('PERatio')) if overview.get('PERatio') else None,
-                'dividend_yield': float(overview.get('DividendYield')) if overview.get('DividendYield') else None,
-                'beta': float(overview.get('Beta')) if overview.get('Beta') else None,
+                'pe_ratio': float(overview.get('PERatio', 0)) or None,
+                'dividend_yield': float(overview.get('DividendYield', 0)) or None,
+                'beta': float(overview.get('Beta', 0)) or None,
                 'fifty_two_week_high': float(overview.get('52WeekHigh', 0)),
                 'fifty_two_week_low': float(overview.get('52WeekLow', 0)),
             }
@@ -42,4 +42,4 @@ def update_company_overview(self, symbol):
         logger.info(f"Successfully updated company overview for {symbol}")
     except Exception as e:
         logger.error(f"Error updating company overview for {symbol}: {e}")
-        self.retry(exc=e)
+        raise self.retry(exc=e)

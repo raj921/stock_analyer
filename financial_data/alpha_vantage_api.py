@@ -3,6 +3,7 @@ from datetime import datetime
 from django.conf import settings
 from financial_data.models import StockData
 import logging
+import time
 
 logger = logging.getLogger(__name__)
 
@@ -17,10 +18,14 @@ def fetch_stock_data(symbol, start_date, end_date):
 
     try:
         response = requests.get(url, params=params)
-        response.raise_for_status()  # Raises an HTTPError for bad responses
+        response.raise_for_status()
         data = response.json()
 
         if 'Time Series (Daily)' not in data:
+            if 'Note' in data:
+                logger.warning(f"API call frequency exceeded: {data['Note']}")
+                time.sleep(60)  # Wait for 60 seconds before retrying
+                return fetch_stock_data(symbol, start_date, end_date)  # Retry the API call
             raise ValueError(f"Failed to fetch data from Alpha Vantage API for symbol {symbol}")
 
         daily_data = data['Time Series (Daily)']

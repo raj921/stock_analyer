@@ -19,8 +19,8 @@ if not SECRET_KEY:
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = os.getenv('DEBUG', 'False') == 'True'
 
-# Update ALLOWED_HOSTS to include localhost and 127.0.0.1
-ALLOWED_HOSTS = os.getenv('ALLOWED_HOSTS', 'localhost,127.0.0.1').split(',')
+# Update ALLOWED_HOSTS to include localhost, 127.0.0.1, and .amazonaws.com
+ALLOWED_HOSTS = os.getenv('ALLOWED_HOSTS', 'localhost,127.0.0.1,.amazonaws.com').split(',')
 
 # ... other settings ...
 
