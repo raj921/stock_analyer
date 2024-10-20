@@ -1,0 +1,13 @@
+Django
+djangorestframework
+psycopg2-binary
+requests
+python-dotenv
+gunicorn
+matplotlib
+pandas
+scikit-learn
+celery
+redis
+reportlab
+dj-database-url
