@@ -36,5 +36,20 @@ jobs:
         docker push $ECR_REGISTRY/$ECR_REPOSITORY:$IMAGE_TAG
 
     - name: Deploy to AWS ECS
+      env:
+        ECS_CLUSTER: ${{ secrets.ECS_CLUSTER }}
+        ECS_SERVICE: ${{ secrets.ECS_SERVICE }}
       run: |
-        aws ecs update-service --cluster ${{ secrets.ECS_CLUSTER }} --service ${{ secrets.ECS_SERVICE }} --force-new-deployment
+        if aws ecs describe-services --cluster $ECS_CLUSTER --services $ECS_SERVICE | grep -q "MISSING"; then
+          echo "Service does not exist. Creating new service..."
+          aws ecs create-service \
+            --cluster $ECS_CLUSTER \
+            --service-name $ECS_SERVICE \
+            --task-definition your-task-definition \
+            --desired-count 1 \
+            --launch-type FARGATE \
+            --network-configuration "awsvpcConfiguration={subnets=[subnet-12345678],securityGroups=[sg-12345678]}"
+        else
+          echo "Updating existing service..."
+          aws ecs update-service --cluster $ECS_CLUSTER --service $ECS_SERVICE --force-new-deployment
+        fi
